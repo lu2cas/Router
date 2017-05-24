@@ -21,15 +21,15 @@ public class Router {
             while ((ip = inputFile.readLine()) != null) {
                 ip_list.add(ip);
             }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException e) {
+            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, e);
             return;
         }
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
-        RouterTable tabela = new RouterTable();
-        Thread sender = new Thread(new MessageSender(tabela, ip_list));
-        Thread receiver = new Thread(new MessageReceiver(tabela));
+        RouterTable router_table = new RouterTable();
+        Thread sender = new Thread(new MessageSender(router_table, ip_list));
+        Thread receiver = new Thread(new MessageReceiver(router_table));
 
         sender.start();
         receiver.start();

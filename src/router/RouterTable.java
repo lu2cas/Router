@@ -10,12 +10,12 @@ public class RouterTable {
 
     public RouterTable() {}
 
-    public void update_table(String table,  InetAddress IPAddress) {
+    public void updateTable(String table, InetAddress IPAddress) {
         // Atualize a tabela de rotamento a partir da string recebida
         System.out.println(IPAddress.getHostAddress() + ": " + table);
     }
 
-    public String get_table_string() {
+    public String getTableString() {
         String tabela_string = "!"; // Tabela de roteamento vazia conforme especificado no protocolo
 
         // Converta a tabela de rotamento para string, conforme formato definido no protocolo

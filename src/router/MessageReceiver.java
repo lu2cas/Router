@@ -29,7 +29,7 @@ public class MessageReceiver implements Runnable {
 
         byte[] receiveData = new byte[1024];
 
-        while(true){
+        while (true) {
             // Cria um DatagramPacket
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
@@ -46,7 +46,7 @@ public class MessageReceiver implements Runnable {
             // Obtem o IP de origem da mensagem
             InetAddress IPAddress = receivePacket.getAddress();
 
-            this.routerTable.update_table(table, IPAddress);
+            this.routerTable.updateTable(table, IPAddress);
         }
     }
 }

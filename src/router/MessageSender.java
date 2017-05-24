@@ -33,12 +33,12 @@ public class MessageSender implements Runnable {
             return;
         }
 
-        while(true){
+        while (true) {
             // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
-            String tabela_string = this.routerTable.get_table_string();
+            String table = this.routerTable.getTableString();
 
             // Converte string para array de bytes para envio pelo socket
-            sendData = tabela_string.getBytes();
+            sendData = table.getBytes();
 
             // Anuncia a tabela de roteamento para cada um dos vizinhos
             for (String ip : this.neighbors) {
@@ -62,8 +62,8 @@ public class MessageSender implements Runnable {
             }
 
             /*
-             * Espera 10 segundos antes de realizar o pr�ximo envio. Contudo, caso
-             * a tabela de roteamento sofra uma altera��o, ela deve ser reenvida aos
+             * Espera 10 segundos antes de realizar o próximo envio. Contudo, caso
+             * a tabela de roteamento sofra uma alteração, ela deve ser reenvida aos
              * vizinhos imediatamente
              */
             try {
