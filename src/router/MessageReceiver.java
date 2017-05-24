@@ -8,10 +8,10 @@ import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MessageReceiver implements Runnable{
+public class MessageReceiver implements Runnable {
     private RouterTable routerTable;
 
-    public MessageReceiver(RouterTable router_table){
+    public MessageReceiver(RouterTable router_table) {
         this.routerTable = router_table;
     }
 

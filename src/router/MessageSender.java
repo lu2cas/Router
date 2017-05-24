@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MessageSender implements Runnable{
+public class MessageSender implements Runnable {
     public RouterTable routerTable; // Tabela de roteamento
     public ArrayList<String> neighbors; // Lista de IP's dos roteadores vizinhos
 
@@ -41,7 +41,7 @@ public class MessageSender implements Runnable{
             sendData = tabela_string.getBytes();
 
             // Anuncia a tabela de roteamento para cada um dos vizinhos
-            for (String ip : this.neighbors){
+            for (String ip : this.neighbors) {
                 // Converte string com o IP do vizinho para formato InetAddress
                 try {
                     IPAddress = InetAddress.getByName(ip);
@@ -62,8 +62,8 @@ public class MessageSender implements Runnable{
             }
 
             /*
-             * Espera 10 segundos antes de realizar o próximo envio. Contudo, caso
-             * a tabela de roteamento sofra uma alteração, ela deve ser reenvida aos
+             * Espera 10 segundos antes de realizar o prï¿½ximo envio. Contudo, caso
+             * a tabela de roteamento sofra uma alteraï¿½ï¿½o, ela deve ser reenvida aos
              * vizinhos imediatamente
              */
             try {

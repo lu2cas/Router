@@ -11,14 +11,14 @@ import java.util.logging.Logger;
 public class Router {
 
     public static void main(String[] args) throws IOException {
-        // Lista de endereços IP dos vizinhos
+        // Lista de endereÃ§os IP dos vizinhos
         ArrayList<String> ip_list = new ArrayList<>();
 
-        // Lê arquivo de entrada com lista de IP dos roteadores vizinhos
-        try ( BufferedReader inputFile = new BufferedReader(new FileReader("IPVizinhos.txt"))) {
+        // LÃª arquivo de entrada com lista de IP dos roteadores vizinhos
+        try (BufferedReader inputFile = new BufferedReader(new FileReader("neighbors_ips.txt"))) {
             String ip;
 
-            while( (ip = inputFile.readLine()) != null){
+            while ((ip = inputFile.readLine()) != null) {
                 ip_list.add(ip);
             }
         } catch (FileNotFoundException ex) {
@@ -26,7 +26,7 @@ public class Router {
             return;
         }
 
-        // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
+        // Cria instÃ¢ncias da tabela de roteamento e das threads de envio e recebimento de mensagens
         RouterTable tabela = new RouterTable();
         Thread sender = new Thread(new MessageSender(tabela, ip_list));
         Thread receiver = new Thread(new MessageReceiver(tabela));
