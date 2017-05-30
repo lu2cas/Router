@@ -12,10 +12,10 @@ public class Router {
 
     public static void main(String[] args) throws IOException {
         // Lista de endereços IP dos vizinhos
-        ArrayList<String> ip_list = new ArrayList<>();
+        ArrayList<String> ip_list = new ArrayList<String>();
 
         // Lê arquivo de entrada com lista de IP dos roteadores vizinhos
-        try (BufferedReader inputFile = new BufferedReader(new FileReader("neighbors_ips.txt"))) {
+        try (BufferedReader inputFile = new BufferedReader(new FileReader("neighbors-ips.txt"))) {
             String ip;
 
             while ((ip = inputFile.readLine()) != null) {
