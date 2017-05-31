@@ -29,8 +29,6 @@ public class Router {
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
         RouterTable router_table = new RouterTable();
-router_table.updateTable("*192.168.1.2;1*192.168.1.3;1", InetAddress.getByName("192.168.1.1"));
-System.out.println(ip_list); System.exit(0);
         Thread sender = new Thread(new MessageSender(router_table, ip_list));
         Thread receiver = new Thread(new MessageReceiver(router_table));
 

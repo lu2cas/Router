@@ -27,8 +27,7 @@ public class RouterTable {
         // Verifica se a tabela recebida não está vazia
         if (!table.equals("!")) {
             table = table.substring(1);
-System.out.println(table); System.exit(0);
-            String[] table_rows = table.split("*");
+            String[] table_rows = table.split("\\*");
             String[] table_row;
 
             // Percorre a as linhas da tabela recebida
