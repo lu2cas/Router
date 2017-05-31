@@ -6,12 +6,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Router {
 
     public static void main(String[] args) throws IOException {
+        Semaphore mutex = new Semaphore(0);
+
         // Lista de endereços IP dos vizinhos
         ArrayList<String> ip_list = new ArrayList<String>();
 
@@ -29,7 +32,7 @@ public class Router {
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
         RouterTable router_table = new RouterTable();
-        Thread sender = new Thread(new MessageSender(router_table, ip_list));
+        Thread sender = new Thread(new MessageSender(router_table, ip_list, mutex));
         Thread receiver = new Thread(new MessageReceiver(router_table));
 
         sender.start();

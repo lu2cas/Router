@@ -7,16 +7,22 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException;
 
 public class MessageSender implements Runnable {
     public RouterTable routerTable; // Tabela de roteamento
     public ArrayList<String> neighbors; // Lista de IP's dos roteadores vizinhos
+    public Semaphore mutex;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
+        this.mutex = mutex;
     }
 
     @Override
@@ -67,7 +73,7 @@ public class MessageSender implements Runnable {
              * vizinhos imediatamente
              */
             try {
-                Thread.sleep(10000);
+                mutex.tryAcquire(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
             }
