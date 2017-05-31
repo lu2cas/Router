@@ -11,24 +11,33 @@ public class RouterTable {
      * A tabela deve possuir: IP destino, métrica e IP de saída.
      */
 
-	private HashMap<String, Route> routerTable;
+    private HashMap<String, Route> routerTable;
 
-	public RouterTable() {
+    public RouterTable() {
         this.routerTable = new HashMap<String, Route>();
     }
 
-    public void updateTable(String table, InetAddress IPAddress) {
+    public void updateTable(String table_string, InetAddress sender_ip) {
         // Atualize a tabela de rotamento a partir da string recebida
-        // System.out.println(IPAddress.getHostAddress() + ": " + table);
+        // System.out.println(sender_ip.getHostAddress() + ": " + table_string);
 
         String destination_ip;
         int metric;
-        String outgoing_ip = IPAddress.getHostAddress();
+        String outgoing_ip = sender_ip.getHostAddress();
 
-        // Verifica se a tabela recebida não está vazia
-        if (!table.equals("!")) {
-            table = table.substring(1);
-            String[] table_rows = table.split("\\*");
+        // Verifica se a tabela recebida está vazia
+        if (table_string.equals("!")) {
+            // Cadastra/atualiza rota do IP vizinho na tabela de roteamento local
+            destination_ip = sender_ip.getHostAddress();
+            if (this.routerTable.containsKey(destination_ip)) {
+                this.routerTable.get(destination_ip).setMetric(1);
+                this.routerTable.get(destination_ip).setOutgoingIP(outgoing_ip);
+            } else {
+                // Insere a nova rota na tabela de roteamento local
+                this.routerTable.put(outgoing_ip, new Route(outgoing_ip, 1, outgoing_ip));
+            }
+        } else {
+            String[] table_rows = table_string.substring(1).split("\\*");
             String[] table_row;
 
             // Percorre a as linhas da tabela recebida
@@ -46,7 +55,7 @@ public class RouterTable {
                     }
                 } else {
                     // Insere a nova rota na tabela de roteamento local
-                    this.routerTable.put(destination_ip, new Route(destination_ip, metric, outgoing_ip));
+                    this.routerTable.put(destination_ip, new Route(destination_ip, metric + 1, outgoing_ip));
                 }
             }
         }

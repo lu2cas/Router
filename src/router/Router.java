@@ -13,8 +13,6 @@ import java.util.logging.Logger;
 public class Router {
 
     public static void main(String[] args) throws IOException {
-        Semaphore mutex = new Semaphore(0);
-
         // Lista de endereços IP dos vizinhos
         ArrayList<String> ip_list = new ArrayList<String>();
 
@@ -32,7 +30,10 @@ public class Router {
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
         RouterTable router_table = new RouterTable();
-        Thread sender = new Thread(new MessageSender(router_table, ip_list, mutex));
+
+System.out.println(router_table.getTableString()); System.exit(0);
+
+        Thread sender = new Thread(new MessageSender(router_table, ip_list));
         Thread receiver = new Thread(new MessageReceiver(router_table));
 
         sender.start();

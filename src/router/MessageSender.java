@@ -15,25 +15,23 @@ import java.util.logging.Logger;
 import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException;
 
 public class MessageSender implements Runnable {
-    public RouterTable routerTable; // Tabela de roteamento
-    public ArrayList<String> neighbors; // Lista de IP's dos roteadores vizinhos
-    public Semaphore mutex;
+    public RouterTable routerTable;
+    public ArrayList<String> neighbors;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
-        this.mutex = mutex;
     }
 
     @Override
     public void run() {
-        DatagramSocket clientSocket = null;
-        byte[] sendData;
-        InetAddress IPAddress = null;
+        DatagramSocket client_socket = null;
+        byte[] data;
+        InetAddress neighbor_ip = null;
 
         // Cria socket para envio de mensagem
         try {
-            clientSocket = new DatagramSocket();
+            client_socket = new DatagramSocket();
         } catch (SocketException e) {
             Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
             return;
@@ -44,24 +42,24 @@ public class MessageSender implements Runnable {
             String table = this.routerTable.getTableString();
 
             // Converte string para array de bytes para envio pelo socket
-            sendData = table.getBytes();
+            data = table.getBytes();
 
             // Anuncia a tabela de roteamento para cada um dos vizinhos
             for (String ip : this.neighbors) {
                 // Converte string com o IP do vizinho para formato InetAddress
                 try {
-                    IPAddress = InetAddress.getByName(ip);
+                    neighbor_ip = InetAddress.getByName(ip);
                 } catch (UnknownHostException e) {
                     Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
                     continue;
                 }
 
                 // Configura pacote para envio da menssagem para o roteador vizinho na porta 5000
-                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 5000);
+                DatagramPacket packet = new DatagramPacket(data, data.length, neighbor_ip, 5000);
 
                 // Realiza envio da mensagem
                 try {
-                    clientSocket.send(sendPacket);
+                    client_socket.send(packet);
                 } catch (IOException e) {
                     Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
                 }
@@ -73,8 +71,8 @@ public class MessageSender implements Runnable {
              * vizinhos imediatamente
              */
             try {
-                mutex.tryAcquire(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
+                System.out.println("SLEEP");
+            } catch (Exception e) {
                 Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
             }
         }
