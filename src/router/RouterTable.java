@@ -1,14 +1,13 @@
 package router;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.concurrent.Semaphore;
 
 public class RouterTable {
     /*
-     * Implemente uma estrutura de dados para manter a tabela de roteamento.
-     * A tabela deve possuir: IP destino, métrica e IP de saída.
+     * Implemente uma estrutura de dados para manter a tabela de roteamento. A
+     * tabela deve possuir: IP destino, métrica e IP de saída.
      */
 
     private HashMap<String, Route> routerTable;
@@ -24,10 +23,12 @@ public class RouterTable {
         String destination_ip;
         int metric;
         String outgoing_ip = sender_ip.getHostAddress();
+        String localhost_ip = null;
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
-            // Cadastra/atualiza rota do IP vizinho na tabela de roteamento local
+            // Cadastra/atualiza rota do IP vizinho na tabela de roteamento
+            // local
             destination_ip = sender_ip.getHostAddress();
             if (this.routerTable.containsKey(destination_ip)) {
                 this.routerTable.get(destination_ip).setMetric(1);
@@ -46,9 +47,22 @@ public class RouterTable {
                 destination_ip = table_row[0];
                 metric = Integer.parseInt(table_row[1]);
 
-                // Verfica se o IP de destino da tabela recebida já existe na tabela de roteamento local
-                if (this.routerTable.containsKey(destination_ip)) {
-                    // Se existe, verifica se a metrica é menor que a contida na tabela de roteamento local
+                try {
+                    localhost_ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+
+                // Ignora o próprio IP para atualização da tabela local
+                if (destination_ip.equals(localhost_ip)) {
+                    continue;
+                } else if (this.routerTable.containsKey(destination_ip)) {
+                    /*
+                     * Se o IP de destino da tabela recebida já existe na tabela
+                     * de roteamento local, verifica se a metrica é menor que a
+                     * contida na tabela de roteamento local antes de atualizar a
+                     * rota
+                     */
                     if (metric < this.routerTable.get(destination_ip).getMetric()) {
                         this.routerTable.get(destination_ip).setMetric(metric);
                         this.routerTable.get(destination_ip).setOutgoingIP(outgoing_ip);
@@ -66,7 +80,8 @@ public class RouterTable {
 
         // Verifica se a tabela de rotemento local está vazia
         if (!this.routerTable.isEmpty()) {
-            // Transforma a tabela de roteamento local no formato em string da especificação
+            // Transforma a tabela de roteamento local no formato em string da
+            // especificação
             for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
                 Route route = entry.getValue();
                 table_string += "*";

@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +29,8 @@ public class Router {
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
         RouterTable router_table = new RouterTable();
 
-System.out.println(router_table.getTableString()); System.exit(0);
+        System.out.println(router_table.getTableString());
+        System.exit(0);
 
         Thread sender = new Thread(new MessageSender(router_table, ip_list));
         Thread receiver = new Thread(new MessageReceiver(router_table));

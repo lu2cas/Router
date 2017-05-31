@@ -7,12 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException;
 
 public class MessageSender implements Runnable {
     public RouterTable routerTable;
@@ -66,9 +62,9 @@ public class MessageSender implements Runnable {
             }
 
             /*
-             * Espera 10 segundos antes de realizar o próximo envio. Contudo, caso
-             * a tabela de roteamento sofra uma alteração, ela deve ser reenvida aos
-             * vizinhos imediatamente
+             * Espera 10 segundos antes de realizar o próximo envio. Contudo,
+             * caso a tabela de roteamento sofra uma alteração, ela deve ser
+             * reenvida aos vizinhos imediatamente
              */
             try {
                 System.out.println("SLEEP");
