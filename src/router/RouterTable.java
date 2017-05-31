@@ -10,10 +10,10 @@ public class RouterTable {
      * A tabela deve possuir: IP destino, métrica e IP de saída.
      */
 
-	private HashMap<String, RouterTableRow> routerTable;
+	private HashMap<String, Route> routerTable;
 
     public RouterTable() {
-        this.routerTable = new HashMap<String, RouterTableRow>();
+        this.routerTable = new HashMap<String, Route>();
     }
 
     public void updateTable(String table, InetAddress IPAddress) {
@@ -26,6 +26,8 @@ public class RouterTable {
 
         // Verifica se a tabela recebida não está vazia
         if (!table.equals("!")) {
+            table = table.substring(1);
+System.out.println(table); System.exit(0);
             String[] table_rows = table.split("*");
             String[] table_row;
 
@@ -44,16 +46,29 @@ public class RouterTable {
                     }
                 } else {
                     // Insere a nova rota na tabela de roteamento local
-                    this.routerTable.put(destination_ip, new RouterTableRow(destination_ip, metric, outgoing_ip));
+                    this.routerTable.put(destination_ip, new Route(destination_ip, metric, outgoing_ip));
                 }
             }
         }
     }
 
     public String getTableString() {
-        String table_string = "!"; // Tabela de roteamento vazia conforme especificado no protocolo
+        String table_string = "";
 
-        // Converta a tabela de rotamento para string, conforme formato definido no protocolo
+        // Verifica se a tabela de rotemento local está vazia
+        if (!this.routerTable.isEmpty()) {
+            // Transforma a tabela de roteamento local no formato em string da especificação
+            for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
+                Route route = entry.getValue();
+                table_string += "*";
+                table_string += route.getDestinationIP();
+                table_string += ";";
+                table_string += route.getMetric();
+            }
+        } else {
+            // Tabela de roteamento vazia
+            table_string = "!";
+        }
 
         return table_string;
     }

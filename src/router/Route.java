@@ -2,13 +2,13 @@ package router;
 
 import java.net.InetAddress;
 
-public class RouterTableRow {
+public class Route {
 
     private String destinationIP;
     private int metric;
     private String outgoingIP;
 
-    public RouterTableRow(String destinationIP, int metric, String outgoingIP) {
+    public Route(String destinationIP, int metric, String outgoingIP) {
         super();
         this.outgoingIP = outgoingIP;
         this.destinationIP = destinationIP;
