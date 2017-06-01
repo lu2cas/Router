@@ -2,6 +2,7 @@ package router;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
 import java.util.HashMap;
 
 public class RouterTable {
@@ -17,9 +18,6 @@ public class RouterTable {
     }
 
     public void updateTable(String table_string, InetAddress sender_ip) {
-        // Atualize a tabela de rotamento a partir da string recebida
-        // System.out.println(sender_ip.getHostAddress() + ": " + table_string);
-
         String destination_ip;
         int metric;
         String outgoing_ip = sender_ip.getHostAddress();
@@ -27,21 +25,21 @@ public class RouterTable {
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
-            // Cadastra/atualiza rota do IP vizinho na tabela de roteamento
-            // local
+            // Cadastra/atualiza rota do IP vizinho na tabela de roteamento local
             destination_ip = sender_ip.getHostAddress();
             if (this.routerTable.containsKey(destination_ip)) {
                 this.routerTable.get(destination_ip).setMetric(1);
                 this.routerTable.get(destination_ip).setOutgoingIP(outgoing_ip);
+                this.routerTable.get(destination_ip).setModificationDate(new Date());
             } else {
                 // Insere a nova rota na tabela de roteamento local
-                this.routerTable.put(outgoing_ip, new Route(outgoing_ip, 1, outgoing_ip));
+                this.routerTable.put(destination_ip, new Route(outgoing_ip, 1, outgoing_ip));
             }
         } else {
             String[] table_rows = table_string.substring(1).split("\\*");
             String[] table_row;
 
-            // Percorre a as linhas da tabela recebida
+            // Percorre as linhas da tabela recebida
             for (int i = 0; i < table_rows.length; i++) {
                 table_row = table_rows[i].split(";");
                 destination_ip = table_row[0];
@@ -66,6 +64,7 @@ public class RouterTable {
                     if (metric < this.routerTable.get(destination_ip).getMetric()) {
                         this.routerTable.get(destination_ip).setMetric(metric);
                         this.routerTable.get(destination_ip).setOutgoingIP(outgoing_ip);
+                        this.routerTable.get(destination_ip).setModificationDate(new Date());
                     }
                 } else {
                     // Insere a nova rota na tabela de roteamento local
@@ -80,10 +79,10 @@ public class RouterTable {
 
         // Verifica se a tabela de rotemento local está vazia
         if (!this.routerTable.isEmpty()) {
-            // Transforma a tabela de roteamento local no formato em string da
-            // especificação
+            // Transforma a tabela de roteamento local no formato em string da especificação
+            Route route;
             for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
-                Route route = entry.getValue();
+                route = entry.getValue();
                 table_string += "*";
                 table_string += route.getDestinationIP();
                 table_string += ";";
@@ -95,5 +94,18 @@ public class RouterTable {
         }
 
         return table_string;
+    }
+
+    public void removeInactiveRouters() {
+        Date current_date = new Date();
+        Route route;
+
+        for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
+            route = entry.getValue();
+
+            if ((current_date.getTime() - route.getModificationDate().getTime()) / 1000 > 30) {
+                this.routerTable.remove(entry.getKey());
+            }
+        }
     }
 }

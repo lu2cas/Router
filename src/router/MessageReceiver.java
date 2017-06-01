@@ -15,6 +15,7 @@ public class MessageReceiver implements Runnable {
 
     public MessageReceiver(RouterTable router_table, Semaphore mutex) {
         this.routerTable = router_table;
+        this.mutex = mutex;
     }
 
     @Override
@@ -29,26 +30,36 @@ public class MessageReceiver implements Runnable {
             return;
         }
 
-        byte[] receiveData = new byte[1024];
+        byte[] data = new byte[1024];
 
         while (true) {
             // Cria um DatagramPacket
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            DatagramPacket packet = new DatagramPacket(data, data.length);
 
             try {
                 // Aguarda o recebimento de uma mensagem
-                serverSocket.receive(receivePacket);
+                serverSocket.receive(packet);
             } catch (IOException e) {
                 Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, e);
             }
 
             // Transforma a mensagem em string
-            String table = new String(receivePacket.getData());
+            String table_string = new String(packet.getData());
 
             // Obtem o IP de origem da mensagem
-            InetAddress IPAddress = receivePacket.getAddress();
+            InetAddress sender_ip = packet.getAddress();
 
-            this.routerTable.updateTable(table, IPAddress);
+            try {
+                // Garante acesso exclusivo à zona crítica
+                this.mutex.acquire();
+
+                this.routerTable.updateTable(table_string, sender_ip);
+
+                // Libera acesso à zona crítica
+                this.mutex.release();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
