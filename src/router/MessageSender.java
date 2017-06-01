@@ -7,16 +7,19 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageSender implements Runnable {
-    public RouterTable routerTable;
-    public ArrayList<String> neighbors;
+    private RouterTable routerTable;
+    private ArrayList<String> neighbors;
+    private Semaphore mutex;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
+        this.mutex = mutex;
     }
 
     @Override

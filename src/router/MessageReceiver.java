@@ -5,13 +5,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageReceiver implements Runnable {
     private RouterTable routerTable;
+    private Semaphore mutex;
 
-    public MessageReceiver(RouterTable router_table) {
+    public MessageReceiver(RouterTable router_table, Semaphore mutex) {
         this.routerTable = router_table;
     }
 
