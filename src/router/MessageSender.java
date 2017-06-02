@@ -9,9 +9,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException;
 
 public class MessageSender implements Runnable {
     private RouterTable routerTable;
@@ -34,8 +31,7 @@ public class MessageSender implements Runnable {
         try {
             client_socket = new DatagramSocket();
         } catch (SocketException e) {
-            Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
-            return;
+            e.printStackTrace();
         }
 
         while (true) {
@@ -44,13 +40,13 @@ public class MessageSender implements Runnable {
                 this.mutex.acquire();
 
                 // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
-                String table = this.routerTable.getTableString();
+                String table_string = this.routerTable.getTableString();
 
                 // Libera acesso à zona crítica
                 this.mutex.release();
 
                 // Converte string para array de bytes para envio pelo socket
-                data = table.getBytes();
+                data = table_string.getBytes();
 
                 // Anuncia a tabela de roteamento para cada um dos vizinhos
                 for (String ip : this.neighbors) {
@@ -58,8 +54,7 @@ public class MessageSender implements Runnable {
                     try {
                         neighbor_ip = InetAddress.getByName(ip);
                     } catch (UnknownHostException e) {
-                        Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
-                        continue;
+                        e.printStackTrace();
                     }
 
                     // Configura pacote para envio da menssagem para o roteador vizinho na porta 5000
@@ -69,7 +64,7 @@ public class MessageSender implements Runnable {
                     try {
                         client_socket.send(packet);
                     } catch (IOException e) {
-                        Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
+                        e.printStackTrace();
                     }
                 }
 
@@ -82,7 +77,7 @@ public class MessageSender implements Runnable {
                     //Thread.sleep(10000);
                     this.mutex.tryAcquire(10, TimeUnit.SECONDS);
                 } catch (Exception e) {
-                    Logger.getLogger(MessageSender.class.getName()).log(Level.SEVERE, null, e);
+                    e.printStackTrace();
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();

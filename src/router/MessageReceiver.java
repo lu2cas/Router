@@ -6,8 +6,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MessageReceiver implements Runnable {
     private RouterTable routerTable;
@@ -20,14 +18,13 @@ public class MessageReceiver implements Runnable {
 
     @Override
     public void run() {
-        DatagramSocket serverSocket = null;
+        DatagramSocket server_socket = null;
 
         try {
             // Inicializa o servidor para aguardar datagramas na porta 5000
-            serverSocket = new DatagramSocket(5000);
+            server_socket = new DatagramSocket(5000);
         } catch (SocketException e) {
-            Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, e);
-            return;
+            e.printStackTrace();
         }
 
         byte[] data = new byte[1024];
@@ -38,9 +35,9 @@ public class MessageReceiver implements Runnable {
 
             try {
                 // Aguarda o recebimento de uma mensagem
-                serverSocket.receive(packet);
+                server_socket.receive(packet);
             } catch (IOException e) {
-                Logger.getLogger(MessageReceiver.class.getName()).log(Level.SEVERE, null, e);
+                e.printStackTrace();
             }
 
             // Transforma a mensagem em string

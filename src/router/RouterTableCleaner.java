@@ -1,7 +1,6 @@
 package router;
 
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 public class RouterTableCleaner implements Runnable {
 

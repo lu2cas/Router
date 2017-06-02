@@ -2,6 +2,7 @@ package router;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -22,6 +23,7 @@ public class RouterTable {
         int metric;
         String outgoing_ip = sender_ip.getHostAddress();
         String localhost_ip = null;
+        table_string = table_string.trim();
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
@@ -42,6 +44,7 @@ public class RouterTable {
             // Percorre as linhas da tabela recebida
             for (int i = 0; i < table_rows.length; i++) {
                 table_row = table_rows[i].split(";");
+
                 destination_ip = table_row[0];
                 metric = Integer.parseInt(table_row[1]);
 
@@ -97,17 +100,23 @@ public class RouterTable {
     }
 
     public void removeInactiveRouters() {
+        ArrayList<String> garbage = new ArrayList<String>();
+
         Date current_date = new Date();
         Route route;
         String outgoing_ip;
-        
+
         for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
             route = entry.getValue();
             outgoing_ip = route.getOutgoingIP();
 
-            if ((current_date.getTime() - this.routerTable.get(outgoing_ip).getModificationDate().getTime()) / 1000 > 30) {
-                this.routerTable.remove(entry.getKey());
+            if (current_date.getTime() - this.routerTable.get(outgoing_ip).getModificationDate().getTime() > 30000) {
+                garbage.add(entry.getKey());
             }
+        }
+
+        for (String key : garbage) {
+            this.routerTable.remove(key);
         }
     }
 }

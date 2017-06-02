@@ -34,7 +34,7 @@ public class Router {
 
         Thread message_sender = new Thread(new MessageSender(router_table, ip_list, mutex));
         Thread message_receiver = new Thread(new MessageReceiver(router_table, mutex));
-        Thread router_table_cleaner = new Thread(new MessageReceiver(router_table, mutex));
+        Thread router_table_cleaner = new Thread(new RouterTableCleaner(router_table, mutex));
 
         message_sender.start();
         message_receiver.start();
