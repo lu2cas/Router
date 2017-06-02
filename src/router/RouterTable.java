@@ -33,7 +33,7 @@ public class RouterTable {
             e.printStackTrace();
         }
 
-        localhost_ip = "127.0.0.1";
+        //localhost_ip = "127.0.0.1";
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {

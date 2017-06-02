@@ -53,8 +53,6 @@ public class MessageReceiver implements Runnable {
 
                 this.routerTable.updateTable(table_string, sender_ip);
 
-                //System.out.println(this.routerTable);
-
                 // Libera acesso à zona crítica
                 this.mutex.release();
             } catch (InterruptedException e) {
