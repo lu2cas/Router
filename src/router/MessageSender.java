@@ -73,12 +73,12 @@ public class MessageSender implements Runnable {
                  * caso a tabela de roteamento sofra uma alteração, ela deve ser
                  * reenvida aos vizinhos imediatamente
                  */
-                try {
-                    //Thread.sleep(10000);
+                Thread.sleep(10000);
+                /*try {
                     this.mutex.tryAcquire(10, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

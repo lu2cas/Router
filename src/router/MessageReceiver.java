@@ -28,6 +28,7 @@ public class MessageReceiver implements Runnable {
         }
 
         byte[] data = new byte[1024];
+        String table_string;
 
         while (true) {
             // Cria um DatagramPacket
@@ -41,7 +42,7 @@ public class MessageReceiver implements Runnable {
             }
 
             // Transforma a mensagem em string
-            String table_string = new String(packet.getData());
+            table_string = new String(packet.getData());
 
             // Obtem o IP de origem da mensagem
             InetAddress sender_ip = packet.getAddress();
@@ -51,6 +52,8 @@ public class MessageReceiver implements Runnable {
                 this.mutex.acquire();
 
                 this.routerTable.updateTable(table_string, sender_ip);
+
+                //System.out.println(this.routerTable);
 
                 // Libera acesso à zona crítica
                 this.mutex.release();

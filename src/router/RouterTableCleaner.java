@@ -20,6 +20,8 @@ public class RouterTableCleaner implements Runnable {
 
                 this.routerTable.removeInactiveRouters();
 
+                System.out.println(this.routerTable);
+
                 mutex.release();
 
                 Thread.sleep(30000);
