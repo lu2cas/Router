@@ -99,11 +99,13 @@ public class RouterTable {
     public void removeInactiveRouters() {
         Date current_date = new Date();
         Route route;
-
+        String outgoing_ip;
+        
         for (HashMap.Entry<String, Route> entry : this.routerTable.entrySet()) {
             route = entry.getValue();
+            outgoing_ip = route.getOutgoingIP();
 
-            if ((current_date.getTime() - route.getModificationDate().getTime()) / 1000 > 30) {
+            if ((current_date.getTime() - this.routerTable.get(outgoing_ip).getModificationDate().getTime()) / 1000 > 30) {
                 this.routerTable.remove(entry.getKey());
             }
         }
