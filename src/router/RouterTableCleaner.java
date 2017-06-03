@@ -5,24 +5,27 @@ import java.util.concurrent.Semaphore;
 public class RouterTableCleaner implements Runnable {
 
     private RouterTable routerTable;
-    private Semaphore mutex;
+    private Semaphore tableMutex;
+    private Semaphore socketMutex;
 
-    public RouterTableCleaner(RouterTable router_table, Semaphore mutex) {
+    public RouterTableCleaner(RouterTable router_table, Semaphore table_mutex, Semaphore socket_mutex) {
         this.routerTable = router_table;
-        this.mutex = mutex;
+        this.tableMutex = table_mutex;
+        this.socketMutex = socket_mutex;
     }
 
     @Override
     public void run() {
         while (true) {
             try {
-                mutex.acquire();
+                tableMutex.acquire();
 
-                this.routerTable.removeInactiveRouters();
+                if (this.routerTable.removeInactiveRouters()) {
+                    System.out.println(this.routerTable);
+                    this.socketMutex.release();
+                }
 
-                System.out.println(this.routerTable);
-
-                mutex.release();
+                tableMutex.release();
 
                 Thread.sleep(30000);
             } catch (InterruptedException e) {

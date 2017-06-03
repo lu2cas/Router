@@ -115,7 +115,7 @@ public class RouterTable {
         return table_string;
     }
 
-    public void removeInactiveRouters() {
+    public boolean removeInactiveRouters() {
         ArrayList<String> garbage = new ArrayList<String>();
 
         Date current_date = new Date();
@@ -134,6 +134,8 @@ public class RouterTable {
         for (String destination_ip : garbage) {
             this.routerTable.remove(destination_ip);
         }
+
+        return !garbage.isEmpty();
     }
 
     public String toString() {
@@ -148,7 +150,7 @@ public class RouterTable {
             body += "IP de destino: " + route.getDestinationIP() + "\n";
             body += "Métrica: " + route.getMetric() + "\n";
             body += "IP de saída: " + route.getOutgoingIP() + "\n";
-            body += "Data de recebimento: " + date_format.format(route.getReceivedDate()) + "\n";
+            body += "Data de recebimento: " + date_format.format(route.getReceivedDate()) + "\n\n";
         }
 
         if (body.isEmpty()) {

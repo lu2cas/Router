@@ -28,13 +28,16 @@ public class Router {
         }
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
-        Semaphore mutex = new Semaphore(1);
+        Semaphore table_mutex = new Semaphore(1);
+        Semaphore socket_mutex = new Semaphore(1);
 
         RouterTable router_table = new RouterTable();
 
-        Thread message_sender = new Thread(new MessageSender(router_table, ip_list, mutex));
-        Thread message_receiver = new Thread(new MessageReceiver(router_table, mutex));
-        Thread router_table_cleaner = new Thread(new RouterTableCleaner(router_table, mutex));
+        System.out.println(router_table);
+
+        Thread message_sender = new Thread(new MessageSender(router_table, ip_list, table_mutex, socket_mutex));
+        Thread message_receiver = new Thread(new MessageReceiver(router_table, table_mutex, socket_mutex));
+        Thread router_table_cleaner = new Thread(new RouterTableCleaner(router_table, table_mutex, socket_mutex));
 
         message_sender.start();
         message_receiver.start();

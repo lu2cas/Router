@@ -13,12 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class MessageSender implements Runnable {
     private RouterTable routerTable;
     private ArrayList<String> neighbors;
-    private Semaphore mutex;
+    private Semaphore tableMutex;
+    private Semaphore socketMutex;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore table_mutex, Semaphore socket_mutex) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
-        this.mutex = mutex;
+        this.tableMutex = table_mutex;
+        this.socketMutex = socket_mutex;
     }
 
     @Override
@@ -37,13 +39,13 @@ public class MessageSender implements Runnable {
         while (true) {
             try {
                 // Garante acesso exclusivo à zona crítica
-                this.mutex.acquire();
+                this.tableMutex.acquire();
 
                 // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
                 String table_string = this.routerTable.getTableString();
 
                 // Libera acesso à zona crítica
-                this.mutex.release();
+                this.tableMutex.release();
 
                 // Converte string para array de bytes para envio pelo socket
                 data = table_string.getBytes();
@@ -73,12 +75,12 @@ public class MessageSender implements Runnable {
                  * caso a tabela de roteamento sofra uma alteração, ela deve ser
                  * reenvida aos vizinhos imediatamente
                  */
-                Thread.sleep(10000);
-                /*try {
-                    this.mutex.tryAcquire(10, TimeUnit.SECONDS);
+                //Thread.sleep(10000);
+                try {
+                    this.socketMutex.tryAcquire(10, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }*/
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

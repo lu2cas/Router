@@ -9,11 +9,13 @@ import java.util.concurrent.Semaphore;
 
 public class MessageReceiver implements Runnable {
     private RouterTable routerTable;
-    private Semaphore mutex;
+    private Semaphore tableMutex;
+    private Semaphore socketMutex;
 
-    public MessageReceiver(RouterTable router_table, Semaphore mutex) {
+    public MessageReceiver(RouterTable router_table, Semaphore table_mutex, Semaphore socket_mutex) {
         this.routerTable = router_table;
-        this.mutex = mutex;
+        this.tableMutex = table_mutex;
+        this.socketMutex = socket_mutex;
     }
 
     @Override
@@ -49,12 +51,15 @@ public class MessageReceiver implements Runnable {
 
             try {
                 // Garante acesso exclusivo à zona crítica
-                this.mutex.acquire();
+                this.tableMutex.acquire();
 
-                this.routerTable.updateTable(table_string, sender_ip);
+                if (this.routerTable.updateTable(table_string, sender_ip)) {
+                    System.out.println(this.routerTable);
+                    this.socketMutex.release();
+                }
 
                 // Libera acesso à zona crítica
-                this.mutex.release();
+                this.tableMutex.release();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
