@@ -13,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class MessageSender implements Runnable {
     private RouterTable routerTable;
     private ArrayList<String> neighbors;
-    private Semaphore tableMutex;
-    private Semaphore socketMutex;
+    private Semaphore localMutex;
+    private Semaphore dependentMutex;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore table_mutex, Semaphore socket_mutex) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex_a, Semaphore mutex_b) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
-        this.tableMutex = table_mutex;
-        this.socketMutex = socket_mutex;
+        this.localMutex = mutex_a;
+        this.dependentMutex = mutex_b;
     }
 
     @Override
@@ -38,14 +38,11 @@ public class MessageSender implements Runnable {
 
         while (true) {
             try {
-                // Garante acesso exclusivo à zona crítica
-                this.tableMutex.acquire();
+                // Garante acesso exclusivo à seção crítica
+                this.localMutex.acquire();
 
                 // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
                 String table_string = this.routerTable.getTableString();
-
-                // Libera acesso à zona crítica
-                this.tableMutex.release();
 
                 // Converte string para array de bytes para envio pelo socket
                 data = table_string.getBytes();
@@ -70,6 +67,9 @@ public class MessageSender implements Runnable {
                     }
                 }
 
+                // Libera o MessageReceiver
+                this.dependentMutex.release();
+
                 /*
                  * Espera 10 segundos antes de realizar o próximo envio. Contudo,
                  * caso a tabela de roteamento sofra uma alteração, ela deve ser
@@ -77,7 +77,7 @@ public class MessageSender implements Runnable {
                  */
                 //Thread.sleep(10000);
                 try {
-                    this.socketMutex.tryAcquire(10, TimeUnit.SECONDS);
+                    this.localMutex.tryAcquire(10, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
