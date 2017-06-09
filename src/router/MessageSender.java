@@ -13,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class MessageSender implements Runnable {
     private RouterTable routerTable;
     private ArrayList<String> neighbors;
-    private Semaphore localMutex;
-    private Semaphore dependentMutex;
+    private Semaphore senderMutex;
+    private Semaphore receiverMutex;
 
-    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore mutex_a, Semaphore mutex_b) {
+    public MessageSender(RouterTable router_table, ArrayList<String> neighbors, Semaphore sender_mutex, Semaphore receiver_mutex) {
         this.routerTable = router_table;
         this.neighbors = neighbors;
-        this.localMutex = mutex_a;
-        this.dependentMutex = mutex_b;
+        this.senderMutex = sender_mutex;
+        this.receiverMutex = receiver_mutex;
     }
 
     @Override
@@ -37,51 +37,48 @@ public class MessageSender implements Runnable {
         }
 
         while (true) {
-            try {
-                // Garante acesso exclusivo à seção crítica
-                this.localMutex.acquire();
+            //this.routerTable.removeInactiveRouters();
 
-                // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
-                String table_string = this.routerTable.getTableString();
+            // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
+            String table_string = this.routerTable.getTableString();
 
-                // Converte string para array de bytes para envio pelo socket
-                data = table_string.getBytes();
+            // Converte string para array de bytes para envio pelo socket
+            data = table_string.getBytes();
 
-                // Anuncia a tabela de roteamento para cada um dos vizinhos
-                for (String ip : this.neighbors) {
-                    // Converte string com o IP do vizinho para formato InetAddress
-                    try {
-                        neighbor_ip = InetAddress.getByName(ip);
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                    }
-
-                    // Configura pacote para envio da menssagem para o roteador vizinho na porta 5000
-                    DatagramPacket packet = new DatagramPacket(data, data.length, neighbor_ip, 5000);
-
-                    // Realiza envio da mensagem
-                    try {
-                        client_socket.send(packet);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // Libera o MessageReceiver
-                this.dependentMutex.release();
-
-                /*
-                 * Espera 10 segundos antes de realizar o próximo envio. Contudo,
-                 * caso a tabela de roteamento sofra uma alteração, ela deve ser
-                 * reenvida aos vizinhos imediatamente
-                 */
-                //Thread.sleep(10000);
+            // Anuncia a tabela de roteamento para cada um dos vizinhos
+            for (String ip : this.neighbors) {
+                // Converte string com o IP do vizinho para formato InetAddress
                 try {
-                    this.localMutex.tryAcquire(10, TimeUnit.SECONDS);
-                } catch (Exception e) {
+                    neighbor_ip = InetAddress.getByName(ip);
+                } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
+
+                // Configura pacote para envio da menssagem para o roteador vizinho na porta 5000
+                DatagramPacket packet = new DatagramPacket(data, data.length, neighbor_ip, 5000);
+
+                // Realiza envio da mensagem
+                try {
+                    client_socket.send(packet);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Libera a thread do MessageReceiver
+            this.receiverMutex.release();
+
+//System.out.println(table_string); System.exit(0);
+            /*
+             * Espera 10 segundos antes de realizar o próximo envio. Contudo,
+             * caso a tabela de roteamento sofra uma alteração, ela deve ser
+             * reenvida aos vizinhos imediatamente
+             */
+            //Thread.sleep(10000);
+            try {
+                this.senderMutex.tryAcquire(10, TimeUnit.SECONDS);
+System.out.println(this.routerTable);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

@@ -33,12 +33,11 @@ public class RouterTable {
             e.printStackTrace();
         }
 
-        //localhost_ip = "127.0.0.1";
-
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
             destination_ip = outgoing_ip;
 
+            // Ignora o próprio IP para atualização da tabela local
             if (!destination_ip.equals(localhost_ip)) {
                 if (this.routerTable.containsKey(destination_ip)) {
                     // Atualiza rota na tabela de roteamento local como sendo a de um roteador vizinho
