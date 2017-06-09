@@ -30,9 +30,14 @@ public class MessageReceiver implements Runnable {
         }
 
         byte[] data = new byte[1024];
-        String table_string;
 
         while (true) {
+            try {
+                this.receiverMutex.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             // Cria um DatagramPacket
             DatagramPacket packet = new DatagramPacket(data, data.length);
 
@@ -44,22 +49,13 @@ public class MessageReceiver implements Runnable {
             }
 
             // Transforma a mensagem em string
-            table_string = new String(packet.getData());
+            String table_string = new String(packet.getData());
 
             // Obtem o IP de origem da mensagem
             InetAddress sender_ip = packet.getAddress();
 
-            try {
-                // Garante acesso exclusivo à zona crítica
-                this.receiverMutex.acquire();
-
-                //if (this.routerTable.updateTable(table_string, sender_ip)) {
-                    this.routerTable.updateTable(table_string, sender_ip);
-                    this.senderMutex.release();
-                    //System.out.println(this.routerTable);
-                //}
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (this.routerTable.updateTable(table_string, sender_ip)) {
+                this.senderMutex.release();
             }
         }
     }

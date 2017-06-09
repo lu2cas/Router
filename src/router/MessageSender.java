@@ -26,7 +26,6 @@ public class MessageSender implements Runnable {
     @Override
     public void run() {
         DatagramSocket client_socket = null;
-        byte[] data;
         InetAddress neighbor_ip = null;
 
         // Cria socket para envio de mensagem
@@ -37,13 +36,15 @@ public class MessageSender implements Runnable {
         }
 
         while (true) {
-            //this.routerTable.removeInactiveRouters();
+            this.routerTable.removeInactiveRouters();
+
+            System.out.println(this.routerTable);
 
             // Pega a tabela de roteamento no formato string, conforme especificado pelo protocolo
             String table_string = this.routerTable.getTableString();
 
             // Converte string para array de bytes para envio pelo socket
-            data = table_string.getBytes();
+            byte[] data = table_string.getBytes();
 
             // Anuncia a tabela de roteamento para cada um dos vizinhos
             for (String ip : this.neighbors) {
@@ -68,16 +69,14 @@ public class MessageSender implements Runnable {
             // Libera a thread do MessageReceiver
             this.receiverMutex.release();
 
-//System.out.println(table_string); System.exit(0);
             /*
              * Espera 10 segundos antes de realizar o próximo envio. Contudo,
              * caso a tabela de roteamento sofra uma alteração, ela deve ser
              * reenvida aos vizinhos imediatamente
              */
-            //Thread.sleep(10000);
             try {
                 this.senderMutex.tryAcquire(10, TimeUnit.SECONDS);
-System.out.println(this.routerTable);
+                //System.out.println(this.routerTable);
             } catch (Exception e) {
                 e.printStackTrace();
             }

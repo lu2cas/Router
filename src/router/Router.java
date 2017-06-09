@@ -23,12 +23,12 @@ public class Router {
                 ip_list.add(ip);
             }
         } catch (FileNotFoundException e) {
-            Logger.getLogger(Router.class.getName()).log(Level.SEVERE, null, e);
+            e.printStackTrace();
             return;
         }
 
         // Cria instâncias da tabela de roteamento e das threads de envio e recebimento de mensagens
-        Semaphore sender_mutex = new Semaphore(1);
+        Semaphore sender_mutex = new Semaphore(0);
         Semaphore receiver_mutex = new Semaphore(0);
 
         RouterTable router_table = new RouterTable();
