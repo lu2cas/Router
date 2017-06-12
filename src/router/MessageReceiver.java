@@ -52,9 +52,9 @@ public class MessageReceiver implements Runnable {
             String table_string = new String(packet.getData());
 
             // Obtem o IP de origem da mensagem
-            InetAddress sender_ip = packet.getAddress();
+            InetAddress sender_address = packet.getAddress();
 
-            if (this.routerTable.updateTable(table_string, sender_ip)) {
+            if (this.routerTable.updateTable(table_string, sender_address)) {
                 this.senderMutex.release();
             }
         }

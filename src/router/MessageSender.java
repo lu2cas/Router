@@ -26,7 +26,7 @@ public class MessageSender implements Runnable {
     @Override
     public void run() {
         DatagramSocket client_socket = null;
-        InetAddress neighbor_ip = null;
+        InetAddress neighbor_address = null;
 
         // Cria socket para envio de mensagem
         try {
@@ -50,13 +50,13 @@ public class MessageSender implements Runnable {
             for (String ip : this.neighbors) {
                 // Converte string com o IP do vizinho para formato InetAddress
                 try {
-                    neighbor_ip = InetAddress.getByName(ip);
+                    neighbor_address = InetAddress.getByName(ip);
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }
 
                 // Configura pacote para envio da menssagem para o roteador vizinho na porta 5000
-                DatagramPacket packet = new DatagramPacket(data, data.length, neighbor_ip, 5000);
+                DatagramPacket packet = new DatagramPacket(data, data.length, neighbor_address, 5000);
 
                 // Realiza envio da mensagem
                 try {
