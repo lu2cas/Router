@@ -8,11 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class RouterTable {
-    /*
-     * Implemente uma estrutura de dados para manter a tabela de roteamento. A
-     * tabela deve possuir: IP destino, métrica e IP de saída.
-     */
-
     private HashMap<String, Route> routerTable;
 
     public RouterTable() {
@@ -33,7 +28,12 @@ public class RouterTable {
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
-            this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
+            if (this.routerTable.containsKey(sender_ip)) {
+                this.routerTable.get(sender_ip).setReceivedDate(new Date());
+            } else {
+                this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
+                table_updated = true;
+            }
         } else {
             String[] table_rows = table_string.substring(1).split("\\*");
 
@@ -44,9 +44,19 @@ public class RouterTable {
                 String destination_ip = table_row[0].trim();
                 int metric = Integer.parseInt(table_row[1]);
 
-                // Ignora o próprio IP para atualização da tabela local
+                // Verifica se o próprio IP foi enviado por um outro roteador
                 if (destination_ip.equals(localhost_ip)) {
-                    continue;
+                    // Verifica se quem enviou é um roteador vizinho
+                    if (metric == 1) {
+                        if (this.routerTable.containsKey(sender_ip)) {
+                            this.routerTable.get(sender_ip).setReceivedDate(new Date());
+                        } else {
+                            this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
+                            table_updated = true;
+                        }
+                    } else {
+                        continue;
+                    }
                 } else if (this.routerTable.containsKey(destination_ip)) {
                     this.routerTable.get(destination_ip).setReceivedDate(new Date());
 
