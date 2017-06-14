@@ -25,12 +25,10 @@ public class RouterTable {
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
-            if (this.routerTable.containsKey(sender_ip)) {
-                this.routerTable.get(sender_ip).setReceivedDate(new Date());
-            } else {
-                this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
+            if (!this.routerTable.containsKey(sender_ip)) {
                 table_updated = true;
             }
+            this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
         } else {
             String[] table_rows = table_string.substring(1).split("\\*");
 
@@ -45,20 +43,12 @@ public class RouterTable {
                 if (destination_ip.equals(this.localhostIP)) {
                     // Verifica se quem enviou é um roteador vizinho
                     if (metric == 1) {
-                        if (this.routerTable.containsKey(sender_ip)) {
-                            this.routerTable.get(sender_ip).setReceivedDate(new Date());
-                        } else {
-                            this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
+                        if (!this.routerTable.containsKey(sender_ip)) {
                             table_updated = true;
                         }
-                    } else {
-                        continue;
+                        this.routerTable.put(sender_ip, new Route(sender_ip, 1, sender_ip));
                     }
                 } else if (this.routerTable.containsKey(destination_ip)) {
-                    if (!this.neighbors.contains(destination_ip)) {
-                        this.routerTable.get(destination_ip).setReceivedDate(new Date());
-                    }
-
                     /*
                      * Se o IP de destino da tabela recebida já existe na tabela
                      * de roteamento local, verifica se a metrica é menor que a
@@ -66,8 +56,7 @@ public class RouterTable {
                      * rota
                      */
                     if (metric + 1 < this.routerTable.get(destination_ip).getMetric()) {
-                        this.routerTable.get(destination_ip).setMetric(metric + 1);
-                        this.routerTable.get(destination_ip).setOutgoingIP(sender_ip);
+                        this.routerTable.put(destination_ip, new Route(destination_ip, metric + 1, sender_ip));
                         table_updated = true;
                     }
                 } else {
