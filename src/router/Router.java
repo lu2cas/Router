@@ -8,18 +8,18 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Router {
 
     public static void main(String[] args) throws IOException {
         // Seleciona o IP local
         String localhost_ip = "";
-        try {
+
+        // Seleciona a interface de rede correta na rede interna da PUCRS
+        /*try {
             InetAddress inet = InetAddress.getLocalHost();
             InetAddress[] ips = InetAddress.getAllByName(inet.getCanonicalHostName());
-            if (ips  != null ) {
+            if (ips != null ) {
                 for (int i = 0; i < ips.length; i++) {
                     localhost_ip = ips[i].getHostAddress();
                     String[] octet = localhost_ip.split("\\.");
@@ -29,8 +29,10 @@ public class Router {
                 }
             }
         } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }*/
 
-        }
+        localhost_ip = InetAddress.getLocalHost().getHostAddress();
 
         // Lista de endereços IP dos vizinhos
         ArrayList<String> ip_list = new ArrayList<String>();

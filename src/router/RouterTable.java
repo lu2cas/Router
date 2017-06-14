@@ -58,6 +58,10 @@ public class RouterTable {
                     if (metric + 1 < this.routerTable.get(destination_ip).getMetric()) {
                         this.routerTable.put(destination_ip, new Route(destination_ip, metric + 1, sender_ip));
                         table_updated = true;
+                    } else {
+                        if (this.neighbors.contains(destination_ip)) {
+                            this.routerTable.get(destination_ip).setReceivedDate(new Date());
+                        }
                     }
                 } else {
                     if (!this.neighbors.contains(destination_ip)) {
@@ -103,9 +107,7 @@ public class RouterTable {
             Route route = entry.getValue();
             String destination_ip = route.getDestinationIP();
 
-            if (current_date.getTime() - route.getReceivedDate().getTime() > 30000 && route.getMetric() == 1) {
-                garbage.add(destination_ip);
-            } else if (current_date.getTime() - route.getReceivedDate().getTime() > 10000 && route.getMetric() > 1) {
+            if (current_date.getTime() - route.getReceivedDate().getTime() > 30000) {
                 garbage.add(destination_ip);
             }
         }
