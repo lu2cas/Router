@@ -9,22 +9,19 @@ import java.util.HashMap;
 
 public class RouterTable {
     private HashMap<String, Route> routerTable;
+    private ArrayList<String> neighbors;
+    private String localhostIP;
 
-    public RouterTable() {
+    public RouterTable(ArrayList<String> neighbors, String localhost_ip) {
         this.routerTable = new HashMap<String, Route>();
+        this.neighbors = neighbors;
+        this.localhostIP = localhost_ip;
     }
 
     public boolean updateTable(String table_string, InetAddress sender_address) {
         boolean table_updated = false;
         table_string = table_string.trim();
-        String localhost_ip = "";
         String sender_ip = sender_address.getHostAddress();
-
-        try {
-            localhost_ip = InetAddress.getLocalHost().getHostAddress().trim();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
 
         // Verifica se a tabela recebida está vazia
         if (table_string.equals("!")) {
@@ -45,7 +42,7 @@ public class RouterTable {
                 int metric = Integer.parseInt(table_row[1]);
 
                 // Verifica se o próprio IP foi enviado por um outro roteador
-                if (destination_ip.equals(localhost_ip)) {
+                if (destination_ip.equals(this.localhostIP)) {
                     // Verifica se quem enviou é um roteador vizinho
                     if (metric == 1) {
                         if (this.routerTable.containsKey(sender_ip)) {
@@ -58,7 +55,9 @@ public class RouterTable {
                         continue;
                     }
                 } else if (this.routerTable.containsKey(destination_ip)) {
-                    this.routerTable.get(destination_ip).setReceivedDate(new Date());
+                    if (!this.neighbors.contains(destination_ip)) {
+                        this.routerTable.get(destination_ip).setReceivedDate(new Date());
+                    }
 
                     /*
                      * Se o IP de destino da tabela recebida já existe na tabela
@@ -72,9 +71,11 @@ public class RouterTable {
                         table_updated = true;
                     }
                 } else {
-                    // Insere a nova rota na tabela de roteamento local
-                    this.routerTable.put(destination_ip, new Route(destination_ip, metric + 1, sender_ip));
-                    table_updated = true;
+                    if (!this.neighbors.contains(destination_ip)) {
+                        // Insere a nova rota na tabela de roteamento local
+                        this.routerTable.put(destination_ip, new Route(destination_ip, metric + 1, sender_ip));
+                        table_updated = true;
+                    }
                 }
             }
         }
@@ -113,7 +114,9 @@ public class RouterTable {
             Route route = entry.getValue();
             String destination_ip = route.getDestinationIP();
 
-            if (current_date.getTime() - this.routerTable.get(destination_ip).getReceivedDate().getTime() >= 30000) {
+            if (current_date.getTime() - route.getReceivedDate().getTime() > 30000 && route.getMetric() == 1) {
+                garbage.add(destination_ip);
+            } else if (current_date.getTime() - route.getReceivedDate().getTime() > 10000 && route.getMetric() > 1) {
                 garbage.add(destination_ip);
             }
         }
